@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>lark</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .main-row {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 180px;
+      background: #000;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-start;
+      transition: width 0.3s;
+      padding: 10px 0;
+    }
+
+    .sidebar.collapsed { width: 60px; }
+
+    .logo {
+      text-align: left;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: auto;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .logo { opacity: 0; }
+
+    nav {
+      display: flex;
+      flex-direction: column-reverse;
+      padding: 0 10px;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .nav-item:hover, .nav-item.active { background: #222; }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .welcome-card, .feature-card, .ai-result {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .btn:hover { background: #ccc; }
+
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .status-bar {
+      background: #000;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #888;
+      border-top: 1px solid #222;
+    }
+
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 10px;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .sidebar-toggle .chevron {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed .chevron {
+      transform: rotate(180deg);
+    }
+
+    .ai-search-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #000;
+      padding: 10px 20px;
+      border-top: 1px solid #222;
+      color: #aaa;
+    }
+
+    .token-counter {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 6px 10px;
+      width: 60%;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-wrapper.dragover {
+      border-color: #4c51bf;
+      background: #1a1a1a;
+    }
+
+    #ai-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      padding: 5px;
+    }
+
+    #ai-search-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s ease;
+    }
+
+    #ai-search-btn:hover { background: #ccc; }
+
+    #ai-results ul { list-style: disc; padding-left: 20px; }
+
+    .ai-result h3 { color: #6ee7b7; margin-bottom: 10px; }
+    .ai-result li { color: #9ef; }
+
+    /* Media Player Styles */
+    .media-loader {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 400px;
+      position: relative;
+    }
+
+    .media-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .media-btn {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      min-width: 50px;
+      font-family: monospace;
+    }
+
+    .media-btn:hover {
+      background: #555;
+    }
+
+    .media-btn.active {
+      background: #6ee7b7;
+      color: #000;
+    }
+
+    .media-container {
+      width: 100%;
+      height: 300px;
+      background: #000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .media-container.dimmed {
+      filter: brightness(0.3);
+    }
+
+    .media-container iframe,
+    .media-container video {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .loading {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .content-info {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Age Verification Modal */
+    .age-verification {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .age-modal {
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #333;
+      max-width: 400px;
+    }
+
+    .age-modal h2 {
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .age-modal p {
+      margin-bottom: 30px;
+      color: #ccc;
+      line-height: 1.5;
+    }
+
+    .age-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .age-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .age-btn.confirm {
+      background: #6ee7b7;
+      color: #000;
+    }
+
+    .age-btn.deny {
+      background: #333;
+      color: #fff;
+    }
+
+    .age-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.8;
+    }
+
+    /* Content Filter Controls */
+    .filter-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #222;
+      border-radius: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .filter-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .switch {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .switch.active {
+      background: #6ee7b7;
+    }
+
+    .switch-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .switch.active .switch-slider {
+      transform: translateX(20px);
+    }
+
+    /* Content Sidebar */
+    .media-sidebar {
+      width: 250px;
+      background: #222;
+      border-radius: 8px;
+      padding: 15px;
+      margin-left: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #6ee7b7;
+    }
+
+    .content-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .content-item {
+      background: #333;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      font-size: 12px;
+    }
+
+    .content-item:hover {
+      background: #444;
+      border-color: #555;
+    }
+
+    .content-item.active {
+      border-color: #6ee7b7;
+      background: #2a3a2a;
+    }
+
+    .content-item.filtered {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .item-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .item-rating {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .status-info {
+      margin-top: 10px;
+      padding: 8px;
+      background: #333;
+      border-radius: 4px;
+      font-size: 10px;
+      color: #888;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Enhanced media loader layout */
+    .media-player-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .media-main {
+      flex: 1;
+    }
+
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .player-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #6ee7b7;
+    }
+
+    .content-rating {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .rating-safe { background: #6ee7b7; color: #000; }
+    .rating-adult { background: #333; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="age-verification" id="age-verification">
+    <div class="age-modal">
+      <h2>.\i lark</h2>
+      <p>can you fly yet</p>
+      <div class="age-buttons">
+        <button class="age-btn deny" onclick="ageVerification(false)">wroking on it</button>
+        <button class="age-btn confirm" onclick="ageVerification(true)">always</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="main-row">
+      <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="toggle-btn"><span class="chevron">◀</span></button>
+        <nav>
+          <button class="nav-item" data-action="run-ai"><i>h</i><span>. idea</span></button>
+          <button class="nav-item" data-action="settings"><i>ø)x</i><span>. hold</span></button>
+          <button class="nav-item" data-action="ai-tools"><i>i</i><span>. me</span></button>
+          <button class="nav-item" data-action="projects"><i>gen</i><span>. safe</span></button>
+          <button class="nav-item active" data-action="home"><i>z</i><span>. we</span></button>
+        </nav>
+        <div class="logo">. neu</div>
+      </div>
+
+      <div class="main-content">
+        <div class="welcome-card">
+          <h1>.\i lark</h1>
+          <p>..</p>
+          <div>
+            <button class="btn" data-action="run-ai">ai</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">n</button>
+            <button class="btn" data-action="run-ai">ew</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">a</button>
+            <button class="btn" data-action="run-ai">ll</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">so</button>
+            <button class="btn" data-action="run-ai">b</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">ui</button>
+            <button class="btn" data-action="run-ai">ld</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">yo</button>
+            <button class="btn" data-action="run-ai">ur</button>
+            <button class="btn btn-secondary" data-action="open-external" data-url="">o\.\.\n</button>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card"><h3>is</h3><p>on.</p></div>
+          <div class="feature-card"><h3>g</h3><p>on.</p></div>
+          <div class="feature-card"><h3>s</h3><p>g.</p></div>
+          <div class="feature-card media-loader">
+            <div class="media-player-container">
+              <div class="media-main">
+                <div class="player-header">
+                  <div class="player-title" id="current-title">Select Content</div>
+                  <div class="content-rating" id="current-rating">UNRATED</div>
+                </div>
+                
+                <div class="media-container" id="media-container">
+                  <div class="loading">Select content to begin</div>
+                </div>
+
+                <div class="media-controls">
+                  <button class="media-btn" id="prev-btn" onclick="mediaPlayer.previousContent()">&lt;</button>
+                  <button class="media-btn" id="next-btn" onclick="mediaPlayer.nextContent()">&gt;</button>
+                  <button class="media-btn" id="dim-btn" onclick="mediaPlayer.toggleDim()">^</button>
+                  <button class="media-btn" id="audio-btn" onclick="mediaPlayer.toggleAudio()">%</button>
+                </div>
+
+                <div class="filter-controls">
+                  <div class="filter-toggle">
+                    <span>both</span>
+                    <div class="switch" id="content-filter" onclick="toggleContentFilter()">
+                      <div class="switch-slider"></div>
+                    </div>
+                  </div>
+                  <div class="filter-toggle">
+                    <span>on</span>
+                    <div class="switch" id="adult-filter" onclick="toggleAdultFilter()">
+                      <div class="switch-slider"></div>
+                    </div>
+                  </div>
+                  <div style="margin-left: auto; font-size: 10px;">
+                    /: <span id="age-status">yes</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="media-sidebar">
+                <div class="sidebar-title">~</div>
+                <div class="content-list" id="content-list">
+                  <!-- Content items populated by JavaScript -->
+                </div>
+                <div class="status-info" id="status-info">
+                  ...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="ai-results"></div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div>\ • AI </div>
+      <div class="version">v1.0.0</div>
+    </div>
+
+    <div class="ai-search-footer">
+      <div class="token-counter">ok: <span id="token-count">1500</span></div>
+      <div class="search-wrapper" id="drop-zone">
+        <input type="text" id="ai-search-input" placeholder="Ask or drop something…" spellcheck="true" />
+        <button id="ai-search-btn">^</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global state management
+    const appState = {
+      ageVerified: true,
+      safeContentOnly: false,
+      showAdultContent: true,
+      currentIndex: -1,
+      isDimmed: false,
+      isAudioMuted: false
+    };
+
+    // Content library with classification
+    const contentLibrary = [
+      {
+        id: 1,
+        title: "_",
+        type: "video",
+        url: "https://www.w3schools.com/html/mov_bbb.mp4",
+        rating: "..",
+        category: "educational"
+      },
+      {
+        id: 2,
+        title: "Cooking Tutorial", 
+        type: "video",
+        url: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+        rating: "SAFE",
+        category: "lifestyle"
+      },
+      {
+        id: 3,
+        title: "Music Video",
+        type: "embed",
+        url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        rating: "SAFE",
+        category: "entertainment"
+      },
+      {
+        id: 4,
+        title: "Adult Content 1",
+        type: "placeholder",
+        url: "#adult1",
+        rating: "ADULT",
+        category: "adult"
+      },
+      {
+        id: 5,
+        title: "Adult Content 2", 
+        type: "placeholder",
+        url: "#adult2",
+        rating: "ADULT",
+        category: "adult"
+      }
+    ];
+
+    // Age verification system
+    function ageVerification(verified) {
+      if (verified) {
+        appState.ageVerified = true;
+        document.getElementById('age-verification').classList.add('hidden');
+        document.getElementById('age-status').textContent = 'Yes';
+        localStorage.setItem('ageVerified', 'true');
+        initializeMediaPlayer();
+      } else {
+        window.close() || (document.body.innerHTML = '<div style="text-align: center; padding: 50px; color: #fff;">Access Denied. You must be 18 or older.</div>');
+      }
+    }
+
+    // Content filtering system
+    function toggleContentFilter() {
+      appState.safeContentOnly = !appState.safeContentOnly;
+      const filterSwitch = document.getElementById('content-filter');
+      filterSwitch.classList.toggle('active', !appState.safeContentOnly);
+      updateContentDisplay();
+    }
+
+    function toggleAdultFilter() {
+      if (!appState.ageVerified) {
+        alert('Age verification required to access adult content.');
+        return;
+      }
+      
+      appState.showAdultContent = !appState.showAdultContent;
+      const adultSwitch = document.getElementById('adult-filter');
+      adultSwitch.classList.toggle('active', appState.showAdultContent);
+      updateContentDisplay();
+    }
+
+    // Media player class
+    class MediaPlayer {
+      constructor() {
+        this.container = document.getElementById('media-container');
+        this.titleEl = document.getElementById('current-title');
+        this.ratingEl = document.getElementById('current-rating');
+      }
+
+      loadContent(contentItem) {
+        appState.currentIndex = contentLibrary.findIndex(item => item.id === contentItem.id);
+        
+        this.titleEl.textContent = contentItem.title;
+        this.ratingEl.textContent = contentItem.rating;
+        this.ratingEl.className = `content-rating ${contentItem.rating === 'ADULT' ? 'rating-adult' : 'rating-safe'}`;
+
+        let mediaHTML = '';
+        
+        if (contentItem.type === 'video') {
+          mediaHTML = `
+            <video controls ${appState.isAudioMuted ? 'muted' : ''}>
+              <source src="${contentItem.url}" type="video/mp4">
+              Your browser does not support video playback.
+            </video>
+          `;
+        } else if (contentItem.type === 'embed') {
+          mediaHTML = `
+            <iframe src="${contentItem.url}" 
+                    allowfullscreen 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          `;
+        } else if (contentItem.type === 'placeholder') {
+          mediaHTML = `
+            <div class="loading" style="text-align: center;">
+              <h4>${contentItem.title}</h4>
+              <p style="margin-top: 8px; color: #888; font-size: 12px;">Content framework ready</p>
+            </div>
+          `;
+        }
+
+        this.container.innerHTML = mediaHTML;
+        this.updateActiveItem(contentItem.id);
+      }
+
+      updateActiveItem(activeId) {
+        document.querySelectorAll('.content-item').forEach(item => {
+          item.classList.toggle('active', parseInt(item.dataset.id) === activeId);
+        });
+      }
+
+      previousContent() {
+        const visibleContent = this.getVisibleContent();
+        if (visibleContent.length === 0) return;
+        
+        const currentVisible = visibleContent.findIndex(item => item.id === contentLibrary[appState.currentIndex]?.id);
+        const prevIndex = (currentVisible - 1 + visibleContent.length) % visibleContent.length;
+        this.loadContent(visibleContent[prevIndex]);
+      }
+
+      nextContent() {
+        const visibleContent = this.getVisibleContent();
+        if (visibleContent.length === 0) return;
+        
+        const currentVisible = visibleContent.findIndex(item => item.id === contentLibrary[appState.currentIndex]?.id);
+        const nextIndex = (currentVisible + 1) % visibleContent.length;
+        this.loadContent(visibleContent[nextIndex]);
+      }
+
+      getVisibleContent() {
+        return contentLibrary.filter(item => {
+          if (appState.safeContentOnly && item.rating === 'ADULT') return false;
+          if (!appState.showAdultContent && item.rating === 'ADULT') return false;
+          return true;
+        });
+      }
+
+      toggleDim() {
+        appState.isDimmed = !appState.isDimmed;
+        this.container.classList.toggle('dimmed', appState.isDimmed);
+        
+        const dimBtn = document.getElementById('dim-btn');
+        dimBtn.textContent = appState.isDimmed ? '↓' : '^';
+        dimBtn.classList.toggle('active', appState.isDimmed);
+      }
+
+      toggleAudio() {
+        appState.isAudioMuted = !appState.isAudioMuted;
+        
+        const audioBtn = document.getElementById('audio-btn');
+        audioBtn.textContent = appState.isAudioMuted ? 'X' : '%';
+        audioBtn.classList.toggle('active', appState.isAudioMuted);
+
+        const video = this.container.querySelector('video');
+        if (video) {
+          video.muted = appState.isAudioMuted;
+        }
+      }
+    }
+
+    // Initialize media player
+    const mediaPlayer = new MediaPlayer();
+
+    // Content display management
+    function updateContentDisplay() {
+      const contentList = document.getElementById('content-list');
+      const statusInfo = document.getElementById('status-info');
+      
+      contentList.innerHTML = '';
+      
+      let visibleCount = 0;
+      let adultCount = 0;
+      
+      contentLibrary.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'content-item';
+        itemEl.dataset.id = item.id;
+        
+        const shouldShow = (appState.safeContentOnly && item.rating === 'SAFE') ||
+                          (!appState.safeContentOnly && (item.rating === 'SAFE' || (appState.showAdultContent && item.rating === 'ADULT')));
+        
+        if (!shouldShow) {
+          itemEl.classList.add('filtered');
+        } else {
+          visibleCount++;
+        }
+        
+        if (item.rating === 'ADULT') adultCount++;
+        
+        itemEl.innerHTML = `
+          <div class="item-title">${item.title}</div>
+          <div class="item-rating">${item.rating} • ${item.category}</div>
+        `;
+        
+        itemEl.onclick = () => {
+          if (!itemEl.classList.contains('filtered')) {
+            mediaPlayer.loadContent(item);
+          }
+        };
+        
+        contentList.appendChild(itemEl);
+      });
+      
+      statusInfo.innerHTML = `
+        Total: ${contentLibrary.length}<br>
+        Visible: ${visibleCount}<br>
+        Adult: ${adultCount}
+      `;
+    }
+
+    // Media player initialization
+    function initializeMediaPlayer() {
+      updateContentDisplay();
+      
+      // Load first visible content
+      const visibleContent = mediaPlayer.getVisibleContent();
+      if (visibleContent.length > 0) {
+        mediaPlayer.loadContent(visibleContent[0]);
+      }
+    }
+
+    // Original sidebar and navigation functionality
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+
+    let tokenCount = 1500;
+    const tokenDisplay = document.getElementById('token-count');
+    const aiResults = document.getElementById('ai-results');
+
+    document.getElementById('ai-search-btn').addEventListener('click', handleSearch);
+    document.getElementById('ai-search-input').addEventListener('keypress', e => {
+      if (e.key === 'Enter') handleSearch();
+    });
+
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      const text = e.dataTransfer.getData('text');
+      if (files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById('ai-search-input').value = reader.result.slice(0, 1000);
+        };
+        reader.readAsText(files[0]);
+      } else if (text) {
+        document.getElementById('ai-search-input').value = text;
+      }
+    });
+
+    function handleSearch() {
+      const query = document.getElementById('ai-search-input').value.trim();
+      if (!query) return;
+
+      aiResults.innerHTML = '<div class="ai-result"><h3>Searching...</h3></div>';
+      tokenCount = Math.max(0, tokenCount - 10);
+      tokenDisplay.textContent = tokenCount;
+
+      Promise.all([
+        fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${query}`),
+        fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${query}`),
+      ])
+      .then(async ([dictRes, wikiRes]) => {
+        const dictData = await dictRes.json();
+        const wikiData = await wikiRes.json();
+
+        let html = `<div class="ai-result"><h3>📚 Dictionary</h3><ul>`;
+        if (Array.isArray(dictData)) {
+          dictData[0].meanings.forEach(m => {
+            html += `<li><b>${m.partOfSpeech}:</b> ${m.definitions[0].definition}</li>`;
+          });
+        } else {
+          html += `<li>No dictionary results.</li>`;
+        }
+        html += `</ul></div>`;
+
+        html += `<div class="ai-result"><h3>🌐 Wikipedia</h3><p>${wikiData.extract || 'No wiki summary found.'}</p></div>`;
+        aiResults.innerHTML = html;
+      })
+      .catch(err => {
+        aiResults.innerHTML = `<div class="ai-result"><h3>Error</h3><p>${err.message}</p></div>`;
+      });
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const action = e.currentTarget.getAttribute('data-action');
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+
+        switch(action) {
+          case 'home': break;
+          case 'projects':
+            aiResults.innerHTML = '<div class="ai-result"><h3>📁 Projects</h3><p>Project management functionality would be implemented here.</p></div>';
+            break;
+          case 'ai-tools':
+            aiResults.innerHTML = '<div class="ai-result"><h3>🤖 AI Tools</h3><p>Advanced AI tools and models would be available here.</p></div>';
+            break;
+          case 'settings':
+            aiResults.innerHTML = '<div class="ai-result"><h3>⚙️ Settings</h3><p>Application settings and preferences.</p></div>';
+            break;
+          case 'run-ai':
+            handleSearch();
+            break;
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-action="open-external"]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const url = e.currentTarget.getAttribute('data-url');
+        if (url) {
+          window.open(url, '_blank');
+        }
+      });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      
+      switch(e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          mediaPlayer.previousContent();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          mediaPlayer.nextContent();
+          break;
+        case 'd':
+        case 'D':
+          e.preventDefault();
+          mediaPlayer.toggleDim();
+          break;
+        case 'm':
+        case 'M':
+          e.preventDefault();
+          mediaPlayer.toggleAudio();
+          break;
+      }
+    });
+
+    // Check for saved age verification
+    if (localStorage.getItem('ageVerified') === 'true') {
+      ageVerification(true);
+    }
+  </script>
+</body>
+</html>

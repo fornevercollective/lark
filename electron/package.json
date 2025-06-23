@@ -1,0 +1,16 @@
+{
+  "name": "bumpy-message-trouble-x8k9b",
+  "productName": "bumpy-message-trouble-x8k9b",
+  "description": "My Electron application description",
+  "keywords": [],
+  "main": "./main.js",
+  "version": "1.0.0",
+  "author": "taderiscon",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "35.0.0"
+  }
+}
