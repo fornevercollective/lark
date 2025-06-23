@@ -1,3 +1,2 @@
 # .\i lark
-
-<img width="1448" alt="lark" src="https://github.com/user-attachments/assets/a44ec2f5-312a-4a93-8922-1bbc55967f81" />
+<img width="1280" alt="lark1" src="https://github.com/user-attachments/assets/d44130c9-650f-4fea-ba8f-42dfd1d7ce10" />
