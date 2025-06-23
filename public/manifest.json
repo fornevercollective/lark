@@ -1,0 +1,203 @@
+{
+  "name": "Lark IANA - AI Development Environment",
+  "short_name": "Lark",
+  "description": "A unified AI development environment for modern creators with terminal-centric design and comprehensive toolset integration.",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#030213",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["development", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Terminal",
+      "short_name": "Terminal",
+      "description": "Open development terminal",
+      "url": "/?mode=terminal",
+      "icons": [
+        {
+          "src": "/icons/terminal-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "AI Chat",
+      "short_name": "AI",
+      "description": "Start AI conversation",
+      "url": "/?mode=ai",
+      "icons": [
+        {
+          "src": "/icons/ai-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Editor",
+      "short_name": "Editor",
+      "description": "Open markdown editor",
+      "url": "/?mode=editor",
+      "icons": [
+        {
+          "src": "/icons/editor-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Codex",
+      "short_name": "Codex",
+      "description": "Knowledge manager",
+      "url": "/?mode=codex",
+      "icons": [
+        {
+          "src": "/icons/codex-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "density": "1.5"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "density": "2.0"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "density": "2.6"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "density": "3.0"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "density": "3.2"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "density": "4.0"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "density": "8.0"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "density": "10.7"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Lark desktop interface showing terminal and editor"
+    },
+    {
+      "src": "/screenshots/desktop-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Lark mobile interface with sidebar collapsed"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://lark.figma.site"
+    },
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.lark.iana",
+      "id": "com.lark.iana"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/lark-iana/id123456789",
+      "id": "123456789"
+    },
+    {
+      "platform": "windows",
+      "url": "https://www.microsoft.com/store/apps/lark-iana"
+    }
+  ],
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "lark",
+      "url": "/?handler=protocol&url=%s"
+    },
+    {
+      "protocol": "web+lark",
+      "url": "/?handler=web&url=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/?handler=file",
+      "accept": {
+        "text/markdown": [".md", ".markdown"],
+        "text/plain": [".txt"],
+        "application/json": [".json"],
+        "text/yaml": [".yml", ".yaml"],
+        "application/javascript": [".js"],
+        "text/typescript": [".ts"],
+        "text/python": [".py"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/?handler=share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": ["text/*", "application/json", ".md", ".txt", ".py", ".js", ".ts"]
+        }
+      ]
+    }
+  },
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
